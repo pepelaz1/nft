@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("Erc20Token", function () {
+describe("Marketplace", function () {
 
   let acc1: any;
 

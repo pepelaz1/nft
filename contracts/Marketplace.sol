@@ -5,22 +5,21 @@ import "hardhat/console.sol";
 
 contract Marketplace {
 
- function listItem() public {  
- }
+    function listItem() public {  
+    }
 
- function buyItem() public {  
- }
+    function buyItem() public {  
+    }
 
- function cancel() public {  
- }
+    function cancel() public {  
+    }
 
- function listItemOnAuction() public {  
- }
+    function listItemOnAuction() public {  
+    }
 
- function makeBid() public {  
- }
+    function makeBid() public {  
+    }
 
- function finishAuction() public {  
- }
-
+    function finishAuction() public {  
+    }
 }
