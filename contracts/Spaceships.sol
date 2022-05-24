@@ -28,11 +28,7 @@ contract Spaceships is ERC1155 {
     }
 
     function uri(uint256 _tokenid) override public pure returns (string memory) {
-        return string(
-            abi.encodePacked(
-                "https://ipfs.io/ipfs/QmNoGpoqnYQ2iH1NnwPCRuzyCuo2v1chbiBMWJefm6TSFg/",
-                Strings.toString(_tokenid),".json"
-            )
+        return string(abi.encodePacked("https://ipfs.io/ipfs/QmNoGpoqnYQ2iH1NnwPCRuzyCuo2v1chbiBMWJefm6TSFg/", Strings.toString(_tokenid),".json")
         );
     }
 
