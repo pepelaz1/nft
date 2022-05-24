@@ -9,6 +9,8 @@ describe("Marketplace", function () {
 
   let acc3: any;
 
+  let token20: any;
+
   let token721: any;
 
   let marketplace: any;
@@ -18,7 +20,12 @@ describe("Marketplace", function () {
   beforeEach(async function() {
     [acc1, acc2, acc3] = await ethers.getSigners()
 
-    // deploy 721 token
+    // deploy ERC20 token
+    const Erc20Token = await ethers.getContractFactory('Erc20Token', acc1)
+    token20 = await Erc20Token.deploy("Pepelaz","PPLZ", ethers.utils.parseEther("10000"))
+    await token20.deployed()  
+
+    // deploy ERC721 token
     const Pepelaz721 = await ethers.getContractFactory('Pepelaz721', acc1)
     token721 = await Pepelaz721.deploy('Pepelaz721','PPLZ1')
     await token721.deployed() 
@@ -35,6 +42,7 @@ describe("Marketplace", function () {
   it("should be deployed", async function(){
     expect(marketplace.address).to.be.properAddress
   })
+
 
   it("can create item", async function(){
     const tx = await marketplace.createItem(uri721, acc2.address)
