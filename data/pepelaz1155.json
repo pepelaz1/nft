@@ -1,6 +1,0 @@
-{
-    "name": "Pepelaz 1155",
-    "description": "Pepelaz spaceship model 1155", 
-    "image": "ipfs://QmavsuP1GqNKdvW2NtLz34WjPVD6zr84mpJ6oPmTtHZtTk",
-    "attributes": [ { "trait_type": "speed", "value": "500"}, {"trait_type": "hyperspace", "value": "true"}]
-}

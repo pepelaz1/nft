@@ -14,7 +14,7 @@ describe("Pepelaz721", function () {
   beforeEach(async function() {
     [acc1, acc2, acc3] = await ethers.getSigners()
     const Pepelaz721 = await ethers.getContractFactory('Pepelaz721', acc1)
-    pepelaz721 = await Pepelaz721.deploy()
+    pepelaz721 = await Pepelaz721.deploy('Pepelaz721',"PPLZ1")
     await pepelaz721.deployed()  
   })
 
