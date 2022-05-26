@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { BigNumber } from "ethers";
 import { ethers,network } from "hardhat";
 const { parseEther } = ethers.utils;
 const { MaxUint256 } = ethers.constants;
@@ -98,7 +99,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItem(0, parseEther("20"))
     await tx.wait()
 
-    expect(await marketplace.isItemListed(0)).to.equal(true)
+    expect((await marketplace.sellingOrders(0)).seller).to.equal(acc2.address)
   })
 
 
@@ -120,7 +121,7 @@ describe("Marketplace", function () {
     tx = await marketplace.cancel(0)
     await tx.wait()
 
-    expect(await marketplace.isItemListed(0)).to.equal(false)
+    expect((await marketplace.sellingOrders(0)).seller).to.equal(BigNumber.from(0))
   })
 
 
@@ -196,7 +197,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
   })
 
   it("can't list absent item on auction", async function(){
@@ -219,7 +220,7 @@ describe("Marketplace", function () {
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
     expect(await token20.balanceOf(acc3.address)).to.equal(parseEther("296"))
   })
 
@@ -232,7 +233,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
@@ -282,7 +283,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
@@ -310,7 +311,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
@@ -339,7 +340,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
@@ -360,7 +361,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
@@ -375,8 +376,7 @@ describe("Marketplace", function () {
 
 
 
-  1155
-
+  // 1155
 
   
   it("can create item 2", async function(){
@@ -407,7 +407,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItem(tokenId, parseEther("20"))
     await tx.wait()
 
-    expect(await marketplace.isItemListed(tokenId)).to.equal(true)
+    expect((await marketplace.sellingOrders(tokenId)).seller).to.equal(acc2.address)
   })
 
 
@@ -434,7 +434,7 @@ describe("Marketplace", function () {
     tx = await marketplace.cancel(tokenId)
     await tx.wait()
 
-    expect(await marketplace.isItemListed(tokenId)).to.equal(false)
+    expect((await marketplace.sellingOrders(tokenId)).seller).to.equal(BigNumber.from(0))
   })
   
   it("can buy item 2", async function(){
@@ -508,7 +508,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
   })
 
   it("can't list absent item on auction 2", async function(){
@@ -535,7 +535,7 @@ describe("Marketplace", function () {
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
     expect(await token20.balanceOf(acc3.address)).to.equal(parseEther("296"))
   })
 
@@ -550,7 +550,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
@@ -603,7 +603,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
@@ -632,7 +632,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
@@ -661,7 +661,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()
@@ -683,7 +683,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
     await tx.wait()
 
-    expect(await marketplace.isItemListedOnAuction(tokenId)).to.equal(true)
+    expect((await marketplace.auctionLots(tokenId)).seller).to.equal(acc2.address)
 
     tx = await marketplace.connect(acc3).makeBid(tokenId, parseEther("4"))
     await tx.wait()

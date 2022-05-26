@@ -1,13 +1,14 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 import "./Erc20Token.sol";
 import "./Pepelaz721.sol";
 import "./Spaceships.sol";
+import "./Marketplace721.sol";
+import "./Marketplace1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 
-contract Marketplace is ERC1155Holder{
+contract Marketplace is Marketplace721, Marketplace1155, ERC1155Holder{
     address private immutable owner;
 
     Pepelaz721 private immutable token721;
@@ -29,7 +30,7 @@ contract Marketplace is ERC1155Holder{
         uint256 price;
     }
 
-    mapping (uint256 => SellOrder) private sellingOrders;
+    mapping (uint256 => SellOrder) public sellingOrders;
 
     struct AuctionLot {
         address seller;
@@ -39,14 +40,9 @@ contract Marketplace is ERC1155Holder{
         uint256 bidCount;
     }
 
-    mapping (uint256 => AuctionLot) private auctionLots;
+    mapping (uint256 => AuctionLot) public auctionLots;
 
     // for 1155
-
-     struct HoldedItem {
-        address owner;
-        uint256 count;
-    }
 
     constructor(address _address20, address _address721, address _address1155) {
         owner = msg.sender;
@@ -57,12 +53,12 @@ contract Marketplace is ERC1155Holder{
 
     // 721
 
-    function createItem(string memory _tokenUri, address _owner) public {  
+    function createItem(string memory _tokenUri, address _owner) public override {  
         uint256 tokenId = token721.safeMint(_owner, _tokenUri);
         createdItems[tokenId] = _owner;
     }
     
-    function listItem(uint256 _tokenId, uint256 _price) public { 
+    function listItem(uint256 _tokenId, uint256 _price) public override{ 
         address seller = createdItems[_tokenId];
         require(seller != address(0), "Can't find listed item");
 
@@ -71,24 +67,19 @@ contract Marketplace is ERC1155Holder{
         createdItems[_tokenId] = address(0);
     }
 
-    function isItemListed(uint256 _tokenId) public view returns(bool) {
-        address seller = sellingOrders[_tokenId].seller;
-        return seller != address(0);
-    }
-
     function resetOrder(uint256 _tokenId) private {
         sellingOrders[_tokenId].seller = address(0);
         sellingOrders[_tokenId].price = 0;
     }
 
-    function cancel(uint256 _tokenId) public {  
+    function cancel(uint256 _tokenId) public override {  
         address seller = sellingOrders[_tokenId].seller;
         createdItems[_tokenId] = seller;
 
         resetOrder(_tokenId);
     }
 
-    function buyItem(uint256 _tokenId) public {  
+    function buyItem(uint256 _tokenId) public override {  
         address seller = sellingOrders[_tokenId].seller;
         require(seller != address(0), "Can't find selling item");
 
@@ -100,7 +91,7 @@ contract Marketplace is ERC1155Holder{
     }
 
  
-    function listItemOnAuction(uint256 _tokenId, uint _minPrice) public {  
+    function listItemOnAuction(uint256 _tokenId, uint _minPrice) public override {  
         address seller = createdItems[_tokenId];
         require(seller != address(0), "Can't find listed item on auction");
 
@@ -109,12 +100,12 @@ contract Marketplace is ERC1155Holder{
         createdItems[_tokenId] = address(0);
     }
 
-    function isItemListedOnAuction(uint256 _tokenId) public view returns(bool) {
-        address seller = auctionLots[_tokenId].seller;
-        return seller != address(0);
-    }
+    // function isItemListedOnAuction(uint256 _tokenId) public view returns(bool) {
+    //     address seller = auctionLots[_tokenId].seller;
+    //     return seller != address(0);
+    // }
 
-    function makeBid(uint256 _tokenId, uint _price) public {  
+    function makeBid(uint256 _tokenId, uint _price) public override {  
         address seller = auctionLots[_tokenId].seller;
         require(seller != address(0), "Can't find the item up for auction");
         require(_price > auctionLots[_tokenId].curPrice, "Bid price must be higher that current");
@@ -131,7 +122,7 @@ contract Marketplace is ERC1155Holder{
         token20.transferFrom(msg.sender, address(this), auctionLots[_tokenId].curPrice);
     }
 
-    function finishAuction(uint256 _tokenId) public {
+    function finishAuction(uint256 _tokenId) public override {
         address seller = auctionLots[_tokenId].seller;  
         require(seller != address(0), "Can't find the item up for auction");
         require(block.timestamp >= auctionLots[_tokenId].startTime + auctionDuration, "Auction is not over yet");
@@ -147,12 +138,12 @@ contract Marketplace is ERC1155Holder{
     // // 1155
 
 
-    function createItem2(address _owner, uint256 _tokenId, uint256 _count) public {  
+    function createItem2(address _owner, uint256 _tokenId, uint256 _count) public override {  
          token1155.safeMint(_owner, _tokenId, _count);
          createdItems[_tokenId] = _owner;
     }
 
-    function buyItem2(uint256 _tokenId) public {  
+    function buyItem2(uint256 _tokenId) public override {  
         address seller = sellingOrders[_tokenId].seller;
         uint256 price  = sellingOrders[_tokenId].price;
 
@@ -166,7 +157,7 @@ contract Marketplace is ERC1155Holder{
         createdItems[_tokenId] = address(0);
     }    
 
-     function finishAuction2(uint256 _tokenId) public {
+     function finishAuction2(uint256 _tokenId) public override {
         address seller = auctionLots[_tokenId].seller;  
         require(seller != address(0), "Can't find the item up for auction");
         require(block.timestamp >= auctionLots[_tokenId].startTime + auctionDuration, "Auction is not over yet");
