@@ -137,7 +137,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItem(tokenId, parseEther("20"))
     await tx.wait()
 
-    tx = await marketplace.connect(acc3).buyItem(tokenId)
+    tx = await marketplace.connect(acc3)["buyItem(uint256)"](tokenId)
     await tx.wait()
 
     expect(await token20.balanceOf(acc2.address)).to.equal(parseEther("20"))
@@ -156,7 +156,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItem(tokenId, parseEther("20"))
     await tx.wait()
 
-    await expect(marketplace.connect(acc3).buyItem(1111)).to.be.revertedWith("Can't find selling item")
+    await expect(marketplace.connect(acc3)["buyItem(uint256)"](1111)).to.be.revertedWith("Can't find selling item")
   })
 
 
@@ -170,7 +170,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItem(tokenId, parseEther("20"))
     await tx.wait()
  
-    tx = await marketplace.connect(acc3).buyItem(tokenId)
+    tx = await marketplace.connect(acc3)["buyItem(uint256)"](tokenId)
     await tx.wait()
 
     tx = await marketplace["createItem(string,address)"](uri721, acc3.address)
@@ -181,7 +181,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItem(tokenId, parseEther("20"))
     await tx.wait()
 
-    tx = await marketplace.connect(acc2).buyItem(tokenId)
+    tx = await marketplace.connect(acc2)["buyItem(uint256)"](tokenId)
     await tx.wait()
 
     expect(await token20.balanceOf(acc3.address)).to.equal(parseEther("300"))
@@ -440,7 +440,7 @@ describe("Marketplace", function () {
   
   it("can buy item 2", async function(){
     let tokenId = 1
-    let count = 2
+    let count = 4
 
     let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
@@ -450,12 +450,29 @@ describe("Marketplace", function () {
     tx = await marketplace.listItem(tokenId, parseEther("20"))
     await tx.wait()
 
-    tx = await marketplace.connect(acc3).buyItem2(tokenId)
+    let buyCount = count - 2
+    tx = await marketplace.connect(acc3)["buyItem(uint256,uint256)"](tokenId, buyCount)
     await tx.wait()
 
-    expect(await token20.balanceOf(acc2.address)).to.equal(parseEther((20 * count).toString()))
-    expect(await token1155.balanceOf(acc3.address, tokenId)).to.equal(count)
+    expect(await token20.balanceOf(acc2.address)).to.equal(parseEther((20 * buyCount).toString()))
+    expect(await token1155.balanceOf(acc3.address, tokenId)).to.equal(count - buyCount)
   })
+
+  it("can't buy item more than count", async function(){
+    let tokenId = 1
+    let count = 4
+
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
+    await tx.wait()
+
+    expect(await token1155.balanceOf(acc2.address, tokenId)).to.equal(count)
+
+    tx = await marketplace.listItem(tokenId, parseEther("20"))
+    await tx.wait()
+
+    await expect(marketplace.connect(acc3)["buyItem(uint256,uint256)"](tokenId,5)).to.be.revertedWith("Can't buy more than exising item count")
+  })
+
 
   it("can't buy absent item 2", async function(){
     let tokenId = 1
@@ -467,7 +484,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItem(tokenId, parseEther("20"))
     await tx.wait()
 
-    await expect(marketplace.connect(acc3).buyItem2(1111)).to.be.revertedWith("Can't find selling item")
+    await expect(marketplace.connect(acc3)["buyItem(uint256,uint256)"](1111,2)).to.be.revertedWith("Can't find selling item")
   })
 
   it("can trade items 2", async function(){
@@ -480,7 +497,7 @@ describe("Marketplace", function () {
     tx = await marketplace.listItem(tokenId, parseEther("20"))
     await tx.wait()
 
-    tx = await marketplace.connect(acc3).buyItem2(tokenId)
+    tx = await marketplace.connect(acc3)["buyItem(uint256,uint256)"](tokenId, count)
     await tx.wait()
 
     tx = await marketplace["createItem(address,uint256,uint256)"](acc3.address, tokenId, 0)
@@ -490,7 +507,7 @@ describe("Marketplace", function () {
     await tx.wait()
 
 
-    tx = await marketplace.connect(acc2).buyItem2(tokenId)
+    tx = await marketplace.connect(acc2)["buyItem(uint256,uint256)"](tokenId, count)
     await tx.wait()
 
   

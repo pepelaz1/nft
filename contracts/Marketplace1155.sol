@@ -19,15 +19,15 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
          createdItems[_tokenId] = _owner;
     }
 
-    function buyItem2(uint256 _tokenId) public {  
+    function buyItem(uint256 _tokenId, uint256 _count) public {  
         address seller = sellingOrders[_tokenId].seller;
         uint256 price  = sellingOrders[_tokenId].price;
 
         require(seller != address(0), "Can't find selling item");
+        require(_count  <= token1155.balanceOf(seller, _tokenId),  "Can't buy more than exising item count");
 
-        uint256 count = token1155.balanceOf(seller, _tokenId);
-        token20.transferFrom(msg.sender, seller, price * count);
-        token1155.safeTransferFrom(seller, msg.sender, _tokenId, count, ""); 
+        token20.transferFrom(msg.sender, seller, price * _count);
+        token1155.safeTransferFrom(seller, msg.sender, _tokenId, _count, ""); 
 
         resetOrder(_tokenId);
         createdItems[_tokenId] = address(0);
