@@ -3,6 +3,7 @@ import { BigNumber } from "ethers";
 import { ethers,network } from "hardhat";
 const { parseEther } = ethers.utils;
 const { MaxUint256 } = ethers.constants;
+const hre = require("hardhat");
 
 describe("Marketplace", function () {
 
@@ -80,7 +81,7 @@ describe("Marketplace", function () {
 
 
   it("can create item", async function(){
-    const tx = await marketplace.createItem(uri721, acc2.address)
+    const tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     expect(await token721.balanceOf(acc2.address)).to.equal(1)
@@ -93,7 +94,7 @@ describe("Marketplace", function () {
 
 
   it("can list item", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     tx = await marketplace.listItem(0, parseEther("20"))
@@ -104,7 +105,7 @@ describe("Marketplace", function () {
 
 
   it("can't list absent item", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     await expect(marketplace.listItem(1, parseEther("20"))).to.be.revertedWith("Can't find listed item")
@@ -112,7 +113,7 @@ describe("Marketplace", function () {
 
 
   it("can cancel item listing", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     tx = await marketplace.listItem(0, parseEther("20"))
@@ -128,7 +129,7 @@ describe("Marketplace", function () {
   it("can buy item", async function(){
     let tokenId = 0
 
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     expect(await token721.ownerOf(tokenId)).to.equal(acc2.address)
@@ -147,7 +148,7 @@ describe("Marketplace", function () {
   it("can't buy absent item", async function(){
     let tokenId = 0
 
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     expect(await token721.ownerOf(tokenId)).to.equal(acc2.address)
@@ -161,7 +162,7 @@ describe("Marketplace", function () {
 
 
   it("can trade items", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -172,7 +173,7 @@ describe("Marketplace", function () {
     tx = await marketplace.connect(acc3).buyItem(tokenId)
     await tx.wait()
 
-    tx = await marketplace.createItem(uri721, acc3.address)
+    tx = await marketplace["createItem(string,address)"](uri721, acc3.address)
     await tx.wait()
 
     tokenId = await token721.getIdForUri(uri721)
@@ -189,7 +190,7 @@ describe("Marketplace", function () {
 
   
   it("can list item on auction", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -201,7 +202,7 @@ describe("Marketplace", function () {
   })
 
   it("can't list absent item on auction", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     await expect(marketplace.listItemOnAuction(555, parseEther("20"))).to.be.revertedWith("Can't find listed item on auction")
@@ -209,7 +210,7 @@ describe("Marketplace", function () {
 
 
   it("can make a bid", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -225,7 +226,7 @@ describe("Marketplace", function () {
   })
 
   it("can make a bid higher than current", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -249,7 +250,7 @@ describe("Marketplace", function () {
 
 
   it("can't make bid for absent item", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -262,7 +263,7 @@ describe("Marketplace", function () {
 
 
   it("can't make bid with lower price", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -275,7 +276,7 @@ describe("Marketplace", function () {
 
 
   it("can finish auction with success", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -303,7 +304,7 @@ describe("Marketplace", function () {
   })
 
   it("can finish auction with failure", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -332,7 +333,7 @@ describe("Marketplace", function () {
 
 
   it("can't finish auction before duration elapsed", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -353,7 +354,7 @@ describe("Marketplace", function () {
 
 
   it("can't finish auction for absent item", async function(){
-    let tx = await marketplace.createItem(uri721, acc2.address)
+    let tx = await marketplace["createItem(string,address)"](uri721, acc2.address)
     await tx.wait()
 
     let tokenId = await token721.getIdForUri(uri721)
@@ -383,7 +384,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    const tx = await marketplace.createItem2(acc2.address, tokenId, count)
+    const tx = await marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     expect(await token1155.connect(acc2).balanceOf(acc2.address, tokenId)).to.equal(count)
@@ -399,7 +400,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     expect(await token1155.connect(acc2).balanceOf(acc2.address, tokenId)).to.equal(count)
@@ -415,7 +416,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     await expect(marketplace.listItem(123, parseEther("20"))).to.be.revertedWith("Can't find listed item")
@@ -425,7 +426,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await await marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await await marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItem(tokenId, parseEther("20"))
@@ -441,7 +442,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     expect(await token1155.balanceOf(acc2.address, tokenId)).to.equal(count)
@@ -460,7 +461,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItem(tokenId, parseEther("20"))
@@ -473,7 +474,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItem(tokenId, parseEther("20"))
@@ -482,7 +483,7 @@ describe("Marketplace", function () {
     tx = await marketplace.connect(acc3).buyItem2(tokenId)
     await tx.wait()
 
-    tx = await marketplace.createItem2(acc3.address, tokenId, 0)
+    tx = await marketplace["createItem(address,uint256,uint256)"](acc3.address, tokenId, 0)
     await tx.wait()
 
     tx = await marketplace.listItem(tokenId, parseEther("20"))
@@ -502,7 +503,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
@@ -515,7 +516,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     await expect(marketplace.listItemOnAuction(555, parseEther("20"))).to.be.revertedWith("Can't find listed item on auction")
@@ -526,7 +527,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
@@ -544,7 +545,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
@@ -569,7 +570,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
@@ -583,7 +584,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
@@ -597,7 +598,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
@@ -626,7 +627,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
@@ -655,7 +656,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
@@ -677,7 +678,7 @@ describe("Marketplace", function () {
     let tokenId = 1
     let count = 2
 
-    let tx = await  marketplace.createItem2(acc2.address, tokenId, count)
+    let tx = await  marketplace["createItem(address,uint256,uint256)"](acc2.address, tokenId, count)
     await tx.wait()
 
     tx = await marketplace.listItemOnAuction(tokenId, parseEther("3"))
