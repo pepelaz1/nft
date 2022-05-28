@@ -14,26 +14,40 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
         token1155 = Spaceships(_address1155);
     }
 
-    function createItem(address _owner, uint256 _tokenId, uint256 _count) public {  
+    function createItem(address _owner, uint256 _tokenId, uint256 _count) public override {  
          token1155.safeMint(_owner, _tokenId, _count);
          createdItems[_tokenId] = _owner;
     }
 
-    function buyItem(uint256 _tokenId, uint256 _count) public {  
+    function listItem(uint256 _tokenId, uint256 _price, uint256 _count) public override { 
+        address seller = createdItems[_tokenId];
+        require(seller != address(0), "Can't find listed item");
+
+        SellOrder memory order = SellOrder({seller: seller, price: _price, count: _count});
+        sellingOrders[_tokenId] = order;
+        createdItems[_tokenId] = address(0);
+    }
+
+    function buyItem(uint256 _tokenId, uint256 _count) public override {  
         address seller = sellingOrders[_tokenId].seller;
         uint256 price  = sellingOrders[_tokenId].price;
 
         require(seller != address(0), "Can't find selling item");
-        require(_count  <= token1155.balanceOf(seller, _tokenId),  "Can't buy more than exising item count");
+        require(_count  <= sellingOrders[_tokenId].count,  "Can't buy more than exising item count");
 
         token20.transferFrom(msg.sender, seller, price * _count);
         token1155.safeTransferFrom(seller, msg.sender, _tokenId, _count, ""); 
 
-        resetOrder(_tokenId);
-        createdItems[_tokenId] = address(0);
+        sellingOrders[_tokenId].count -= _count;
+
+        if (sellingOrders[_tokenId].count == 0) {
+            _resetOrder(_tokenId);
+            createdItems[_tokenId] = address(0);
+        }
     }    
 
-     function finishAuction2(uint256 _tokenId) public  {
+
+    function finishAuction2(uint256 _tokenId) public override{
         address seller = auctionLots[_tokenId].seller;  
         require(seller != address(0), "Can't find the item up for auction");
         require(block.timestamp >= auctionLots[_tokenId].startTime + auctionDuration, "Auction is not over yet");

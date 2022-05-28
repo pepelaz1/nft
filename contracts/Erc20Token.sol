@@ -8,9 +8,9 @@ contract Erc20Token {
 
     address private immutable owner;
 
-    uint256  private totalAmount;
+    uint256 private totalAmount;
 
-    string  private tokenName;
+    string private tokenName;
 
     string private tokenSymbol;
 

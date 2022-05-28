@@ -11,7 +11,7 @@ contract Pepelaz721 is ERC721, ERC721URIStorage, Ownable {
 
     Counters.Counter private _tokenIdCounter;
 
-    mapping (string => uint256) private uriIds;
+    mapping(string => uint256) private uriIds;
 
     constructor(string memory _name, string memory _symbol)
         ERC721(_name, _symbol)

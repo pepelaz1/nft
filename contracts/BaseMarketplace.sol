@@ -3,18 +3,11 @@ pragma solidity ^0.8.0;
 
 import "./Erc20Token.sol";
 
-contract BaseMarketplace {
-    address internal immutable owner;
-
-    uint256 internal constant successAuctionCount = 2;
-
-    uint256 internal constant auctionDuration = 3*24*60*60;
-
-    Erc20Token internal immutable token20;
-
+abstract contract BaseMarketplace {
     struct SellOrder {
         address seller;
         uint256 price;
+        uint256 count;
     }
 
     struct AuctionLot {
@@ -25,36 +18,51 @@ contract BaseMarketplace {
         uint256 bidCount;
     }
 
-    mapping (uint256 => address) internal createdItems;
+    address internal immutable owner;
 
-    mapping (uint256 => SellOrder) public sellingOrders;
+    uint256 internal constant successAuctionCount = 2;
 
-    mapping (uint256 => AuctionLot) public auctionLots;
+    uint256 internal constant auctionDuration = 3 days;
+
+    Erc20Token internal immutable token20;
+
+    mapping(uint256 => address) internal createdItems;
+
+    mapping(uint256 => SellOrder) public sellingOrders;
+
+    mapping(uint256 => AuctionLot) public auctionLots;
 
     constructor(address _address20) { 
         owner = msg.sender;
         token20 = Erc20Token(_address20);
     }
 
-    function listItem(uint256 _tokenId, uint256 _price) public { 
-        address seller = createdItems[_tokenId];
-        require(seller != address(0), "Can't find listed item");
+    function createItem(string memory _tokenUri, address _owner) public virtual;  
 
-        SellOrder memory order = SellOrder({seller: seller, price: _price});
-        sellingOrders[_tokenId] = order;
-        createdItems[_tokenId] = address(0);
-    }
+    function createItem(address _owner, uint256 _tokenId, uint256 _count) public virtual;  
+
+    function listItem(uint256 _tokenId, uint256 _price) public virtual; 
+
+    function listItem(uint256 _tokenId, uint256 _price, uint256 _count) public virtual; 
+
+    function buyItem(uint256 _tokenId) public virtual;
+
+    function buyItem(uint256 _tokenId, uint256 _count) public virtual;
 
     function cancel(uint256 _tokenId) public  {  
         address seller = sellingOrders[_tokenId].seller;
         createdItems[_tokenId] = seller;
 
-        resetOrder(_tokenId);
+        _resetOrder(_tokenId);
     }
 
-    function resetOrder(uint256 _tokenId) internal {
-        sellingOrders[_tokenId].seller = address(0);
-        sellingOrders[_tokenId].price = 0;
+    function listItemOnAuction(uint256 _tokenId, uint _minPrice) public {  
+        address seller = createdItems[_tokenId];
+        require(seller != address(0), "Can't find listed item on auction");
+
+        AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
+        auctionLots[_tokenId] = lot;
+        createdItems[_tokenId] = address(0);
     }
 
     function makeBid(uint256 _tokenId, uint _price) public  {  
@@ -74,13 +82,12 @@ contract BaseMarketplace {
         token20.transferFrom(msg.sender, address(this), auctionLots[_tokenId].curPrice);
     }
 
+    function finishAuction(uint256 _tokenId) public virtual; 
 
-    function listItemOnAuction(uint256 _tokenId, uint _minPrice) public {  
-        address seller = createdItems[_tokenId];
-        require(seller != address(0), "Can't find listed item on auction");
+    function finishAuction2(uint256 _tokenId) public virtual; 
 
-        AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
-        auctionLots[_tokenId] = lot;
-        createdItems[_tokenId] = address(0);
+    function _resetOrder(uint256 _tokenId) internal {
+        sellingOrders[_tokenId].seller = address(0);
+        sellingOrders[_tokenId].price = 0;
     }
 }

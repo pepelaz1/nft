@@ -12,24 +12,33 @@ abstract contract Marketplace721 is BaseMarketplace {
         token721 = Pepelaz721(_address721);
     }
 
-
-    function createItem(string memory _tokenUri, address _owner) public  {  
+    function createItem(string memory _tokenUri, address _owner) public override  {  
         uint256 tokenId = token721.safeMint(_owner, _tokenUri);
         createdItems[tokenId] = _owner;
     }
-    
-    function buyItem(uint256 _tokenId) public  {  
+
+    function listItem(uint256 _tokenId, uint256 _price) public override { 
+        address seller = createdItems[_tokenId];
+        require(seller != address(0), "Can't find listed item");
+
+        SellOrder memory order = SellOrder({seller: seller, price: _price, count: 1});
+        sellingOrders[_tokenId] = order;
+        createdItems[_tokenId] = address(0);
+    }
+
+    function buyItem(uint256 _tokenId) public override {  
         address seller = sellingOrders[_tokenId].seller;
         require(seller != address(0), "Can't find selling item");
 
         token20.transferFrom(msg.sender, seller, sellingOrders[_tokenId].price);
         token721.safeTransferFrom(seller, msg.sender, _tokenId);
 
-        resetOrder(_tokenId);
+        _resetOrder(_tokenId);
         createdItems[_tokenId] = address(0);
     }
 
-    function finishAuction(uint256 _tokenId) public  {
+
+    function finishAuction(uint256 _tokenId) public override {
         address seller = auctionLots[_tokenId].seller;  
         require(seller != address(0), "Can't find the item up for auction");
         require(block.timestamp >= auctionLots[_tokenId].startTime + auctionDuration, "Auction is not over yet");
