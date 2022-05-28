@@ -13,17 +13,15 @@ abstract contract Marketplace721 is BaseMarketplace {
     }
 
     function createItem(string memory _tokenUri, address _owner) public {  
-        uint256 tokenId = token721.safeMint(_owner, _tokenUri);
-        createdItems[tokenId] = _owner;
+        token721.safeMint(_owner, _tokenUri);
     }
 
     function listItem(uint256 _tokenId, uint256 _price) public { 
-        address seller = createdItems[_tokenId];
+        address seller = token721.ownerOf(_tokenId);
         require(seller != address(0), "Can't find listed item");
 
         SellOrder memory order = SellOrder({seller: seller, price: _price, count: 1});
         sellingOrders[_tokenId] = order;
-        createdItems[_tokenId] = address(0);
     }
 
     function buyItem(uint256 _tokenId) public {  
@@ -34,17 +32,15 @@ abstract contract Marketplace721 is BaseMarketplace {
         token721.safeTransferFrom(seller, msg.sender, _tokenId);
 
         _resetOrder(_tokenId);
-        createdItems[_tokenId] = address(0);
     }
 
 
     function listItemOnAuction(uint256 _tokenId, uint _minPrice) public {  
-        address seller = createdItems[_tokenId];
+        address seller = token721.ownerOf(_tokenId);
         require(seller != address(0), "Can't find listed item on auction");
 
         AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, count: 1, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
         auctionLots[_tokenId] = lot;
-        createdItems[_tokenId] = address(0);
     }
 
 

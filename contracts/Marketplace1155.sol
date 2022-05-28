@@ -56,6 +56,7 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
     }
 
 
+
     function finishAuction2(uint256 _tokenId) public {
         address seller = auctionLots[_tokenId].seller;  
         require(seller != address(0), "Can't find the item up for auction");
