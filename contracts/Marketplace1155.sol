@@ -20,7 +20,7 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
 
     function listItem(uint256 _tokenId, uint256 _price, uint256 _count) public { 
         address seller = msg.sender;
-        require(seller != address(0), "Can't find listed item");
+        require(seller == owner, "Only owner can list");
 
         SellOrder memory order = SellOrder({seller: seller, price: _price, count: _count});
         sellingOrders[_tokenId] = order;
@@ -45,7 +45,7 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
 
     function listItemOnAuction(uint256 _tokenId, uint _minPrice, uint256 _count) public {  
         address seller = msg.sender;
-        require(seller != address(0), "Can't find listed item on auction");
+        require(seller == owner, "Only owner can list item on auction");
 
         AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, count: _count, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
         auctionLots[_tokenId] = lot;

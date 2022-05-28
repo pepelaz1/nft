@@ -18,7 +18,7 @@ abstract contract Marketplace721 is BaseMarketplace {
 
     function listItem(uint256 _tokenId, uint256 _price) public { 
         address seller = token721.ownerOf(_tokenId);
-        require(seller != address(0), "Can't find listed item");
+        require(seller == owner, "Only owner can list");
 
         SellOrder memory order = SellOrder({seller: seller, price: _price, count: 1});
         sellingOrders[_tokenId] = order;
@@ -37,7 +37,7 @@ abstract contract Marketplace721 is BaseMarketplace {
 
     function listItemOnAuction(uint256 _tokenId, uint _minPrice) public {  
         address seller = token721.ownerOf(_tokenId);
-        require(seller != address(0), "Can't find listed item on auction");
+        require(seller == owner, "Only owner can list on auction");
 
         AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, count: 1, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
         auctionLots[_tokenId] = lot;
