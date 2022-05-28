@@ -37,7 +37,7 @@ contract BaseMarketplace {
     }
 
     function cancel(uint256 _tokenId) public  {  
-        _resetOrder(_tokenId);
+        delete sellingOrders[_tokenId];
     }
 
     function makeBid(uint256 _tokenId, uint _price) public  {  
@@ -57,7 +57,4 @@ contract BaseMarketplace {
         token20.transferFrom(msg.sender, address(this), auctionLots[_tokenId].curPrice);
     }
 
-    function _resetOrder(uint256 _tokenId) internal {
-        delete sellingOrders[_tokenId];
-    }
 }

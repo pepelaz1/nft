@@ -31,7 +31,7 @@ abstract contract Marketplace721 is BaseMarketplace {
         token20.transferFrom(msg.sender, seller, sellingOrders[_tokenId].price);
         token721.safeTransferFrom(seller, msg.sender, _tokenId);
 
-        _resetOrder(_tokenId);
+        delete sellingOrders[_tokenId];
     }
 
 
@@ -39,7 +39,14 @@ abstract contract Marketplace721 is BaseMarketplace {
         address seller = token721.ownerOf(_tokenId);
         require(seller == owner, "Only owner can list on auction");
 
-        AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, count: 1, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
+        AuctionLot memory lot = AuctionLot({
+            seller: seller, 
+            curPrice: _minPrice, 
+            count: 1,
+            curBidder: address(0),
+            startTime: block.timestamp, 
+            bidCount: 0});
+
         auctionLots[_tokenId] = lot;
     }
 
