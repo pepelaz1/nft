@@ -27,8 +27,6 @@ contract BaseMarketplace {
 
     Erc20Token internal immutable token20;
 
-    mapping(uint256 => address) internal createdItems;
-
     mapping(uint256 => SellOrder) public sellingOrders;
 
     mapping(uint256 => AuctionLot) public auctionLots;
@@ -39,9 +37,6 @@ contract BaseMarketplace {
     }
 
     function cancel(uint256 _tokenId) public  {  
-        address seller = sellingOrders[_tokenId].seller;
-        createdItems[_tokenId] = seller;
-
         _resetOrder(_tokenId);
     }
 

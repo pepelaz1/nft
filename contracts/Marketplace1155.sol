@@ -16,16 +16,14 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
 
     function createItem(address _owner, uint256 _tokenId, uint256 _count) public {  
          token1155.safeMint(_owner, _tokenId, _count);
-         createdItems[_tokenId] = _owner;
     }
 
     function listItem(uint256 _tokenId, uint256 _price, uint256 _count) public { 
-        address seller = createdItems[_tokenId];
+        address seller = msg.sender;
         require(seller != address(0), "Can't find listed item");
 
         SellOrder memory order = SellOrder({seller: seller, price: _price, count: _count});
         sellingOrders[_tokenId] = order;
-        createdItems[_tokenId] = address(0);
     }
 
     function buyItem(uint256 _tokenId, uint256 _count) public {  
@@ -42,19 +40,16 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
 
         if (sellingOrders[_tokenId].count == 0) {
             _resetOrder(_tokenId);
-            createdItems[_tokenId] = address(0);
         }
     }    
 
     function listItemOnAuction(uint256 _tokenId, uint _minPrice, uint256 _count) public {  
-        address seller = createdItems[_tokenId];
+        address seller = msg.sender;
         require(seller != address(0), "Can't find listed item on auction");
 
         AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, count: _count, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
         auctionLots[_tokenId] = lot;
-        createdItems[_tokenId] = address(0);
     }
-
 
 
     function finishAuction2(uint256 _tokenId) public {
