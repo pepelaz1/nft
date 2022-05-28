@@ -14,12 +14,12 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
         token1155 = Spaceships(_address1155);
     }
 
-    function createItem(address _owner, uint256 _tokenId, uint256 _count) public override {  
+    function createItem(address _owner, uint256 _tokenId, uint256 _count) public {  
          token1155.safeMint(_owner, _tokenId, _count);
          createdItems[_tokenId] = _owner;
     }
 
-    function listItem(uint256 _tokenId, uint256 _price, uint256 _count) public override { 
+    function listItem(uint256 _tokenId, uint256 _price, uint256 _count) public { 
         address seller = createdItems[_tokenId];
         require(seller != address(0), "Can't find listed item");
 
@@ -28,7 +28,7 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
         createdItems[_tokenId] = address(0);
     }
 
-    function buyItem(uint256 _tokenId, uint256 _count) public override {  
+    function buyItem(uint256 _tokenId, uint256 _count) public {  
         address seller = sellingOrders[_tokenId].seller;
         uint256 price  = sellingOrders[_tokenId].price;
 
@@ -46,17 +46,24 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
         }
     }    
 
+    function listItemOnAuction(uint256 _tokenId, uint _minPrice, uint256 _count) public {  
+        address seller = createdItems[_tokenId];
+        require(seller != address(0), "Can't find listed item on auction");
 
-    function finishAuction2(uint256 _tokenId) public override{
+        AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, count: _count, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
+        auctionLots[_tokenId] = lot;
+        createdItems[_tokenId] = address(0);
+    }
+
+
+    function finishAuction2(uint256 _tokenId) public {
         address seller = auctionLots[_tokenId].seller;  
         require(seller != address(0), "Can't find the item up for auction");
         require(block.timestamp >= auctionLots[_tokenId].startTime + auctionDuration, "Auction is not over yet");
 
         if (auctionLots[_tokenId].bidCount >= successAuctionCount) {
             token20.transfer(seller, auctionLots[_tokenId].curPrice);
-
-            uint256 count = token1155.balanceOf(seller, _tokenId);
-            token1155.safeTransferFrom(seller, msg.sender, _tokenId, count, ""); 
+            token1155.safeTransferFrom(seller, msg.sender, _tokenId, auctionLots[_tokenId].count, ""); 
         } else {
             token20.transfer(auctionLots[_tokenId].curBidder, auctionLots[_tokenId].curPrice);
         }

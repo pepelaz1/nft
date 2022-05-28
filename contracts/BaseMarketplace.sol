@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./Erc20Token.sol";
 
-abstract contract BaseMarketplace {
+contract BaseMarketplace {
     struct SellOrder {
         address seller;
         uint256 price;
@@ -13,6 +13,7 @@ abstract contract BaseMarketplace {
     struct AuctionLot {
         address seller;
         uint256 curPrice;
+        uint256 count;
         address curBidder;
         uint256 startTime;
         uint256 bidCount;
@@ -37,32 +38,11 @@ abstract contract BaseMarketplace {
         token20 = Erc20Token(_address20);
     }
 
-    function createItem(string memory _tokenUri, address _owner) public virtual;  
-
-    function createItem(address _owner, uint256 _tokenId, uint256 _count) public virtual;  
-
-    function listItem(uint256 _tokenId, uint256 _price) public virtual; 
-
-    function listItem(uint256 _tokenId, uint256 _price, uint256 _count) public virtual; 
-
-    function buyItem(uint256 _tokenId) public virtual;
-
-    function buyItem(uint256 _tokenId, uint256 _count) public virtual;
-
     function cancel(uint256 _tokenId) public  {  
         address seller = sellingOrders[_tokenId].seller;
         createdItems[_tokenId] = seller;
 
         _resetOrder(_tokenId);
-    }
-
-    function listItemOnAuction(uint256 _tokenId, uint _minPrice) public {  
-        address seller = createdItems[_tokenId];
-        require(seller != address(0), "Can't find listed item on auction");
-
-        AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
-        auctionLots[_tokenId] = lot;
-        createdItems[_tokenId] = address(0);
     }
 
     function makeBid(uint256 _tokenId, uint _price) public  {  
@@ -82,12 +62,7 @@ abstract contract BaseMarketplace {
         token20.transferFrom(msg.sender, address(this), auctionLots[_tokenId].curPrice);
     }
 
-    function finishAuction(uint256 _tokenId) public virtual; 
-
-    function finishAuction2(uint256 _tokenId) public virtual; 
-
     function _resetOrder(uint256 _tokenId) internal {
-        sellingOrders[_tokenId].seller = address(0);
-        sellingOrders[_tokenId].price = 0;
+        delete sellingOrders[_tokenId];
     }
 }

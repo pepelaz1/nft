@@ -12,12 +12,12 @@ abstract contract Marketplace721 is BaseMarketplace {
         token721 = Pepelaz721(_address721);
     }
 
-    function createItem(string memory _tokenUri, address _owner) public override  {  
+    function createItem(string memory _tokenUri, address _owner) public {  
         uint256 tokenId = token721.safeMint(_owner, _tokenUri);
         createdItems[tokenId] = _owner;
     }
 
-    function listItem(uint256 _tokenId, uint256 _price) public override { 
+    function listItem(uint256 _tokenId, uint256 _price) public { 
         address seller = createdItems[_tokenId];
         require(seller != address(0), "Can't find listed item");
 
@@ -26,7 +26,7 @@ abstract contract Marketplace721 is BaseMarketplace {
         createdItems[_tokenId] = address(0);
     }
 
-    function buyItem(uint256 _tokenId) public override {  
+    function buyItem(uint256 _tokenId) public {  
         address seller = sellingOrders[_tokenId].seller;
         require(seller != address(0), "Can't find selling item");
 
@@ -38,7 +38,17 @@ abstract contract Marketplace721 is BaseMarketplace {
     }
 
 
-    function finishAuction(uint256 _tokenId) public override {
+    function listItemOnAuction(uint256 _tokenId, uint _minPrice) public {  
+        address seller = createdItems[_tokenId];
+        require(seller != address(0), "Can't find listed item on auction");
+
+        AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, count: 1, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
+        auctionLots[_tokenId] = lot;
+        createdItems[_tokenId] = address(0);
+    }
+
+
+    function finishAuction(uint256 _tokenId) public {
         address seller = auctionLots[_tokenId].seller;  
         require(seller != address(0), "Can't find the item up for auction");
         require(block.timestamp >= auctionLots[_tokenId].startTime + auctionDuration, "Auction is not over yet");
