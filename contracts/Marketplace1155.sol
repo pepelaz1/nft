@@ -25,6 +25,8 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
 
         SellOrder memory order = SellOrder({seller: seller, price: _price, count: _count});
         sellingOrders[_tokenId] = order;
+
+        token1155.safeTransferFrom(msg.sender, address(this), _tokenId, _count, "");
     }
 
     function buyItem(uint256 _tokenId, uint256 _count) public {  
@@ -35,7 +37,7 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
         require(_count  <= sellingOrders[_tokenId].count,  "Can't buy more than exising item count");
 
         token20.transferFrom(msg.sender, seller, price * _count);
-        token1155.safeTransferFrom(seller, msg.sender, _tokenId, _count, ""); 
+        token1155.safeTransferFrom(address(this), msg.sender, _tokenId, _count, ""); 
 
         sellingOrders[_tokenId].count -= _count;
 
@@ -48,8 +50,15 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
         address seller = msg.sender;
         require(seller == owner, "Only owner can list item on auction");
 
-        AuctionLot memory lot = AuctionLot({seller: seller, curPrice: _minPrice, count: _count, curBidder: address(0), startTime: block.timestamp, bidCount: 0});
+        AuctionLot memory lot = AuctionLot({seller: seller, 
+                                            curPrice: _minPrice,
+                                            count: _count, 
+                                            curBidder: address(0), 
+                                            startTime: 
+                                            block.timestamp, 
+                                            bidCount: 0});
         auctionLots[_tokenId] = lot;
+        token1155.safeTransferFrom(msg.sender, address(this), _tokenId, _count, "");
     }
 
 
@@ -60,7 +69,7 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
 
         if (auctionLots[_tokenId].bidCount >= successAuctionCount) {
             token20.transfer(seller, auctionLots[_tokenId].curPrice);
-            token1155.safeTransferFrom(seller, msg.sender, _tokenId, auctionLots[_tokenId].count, ""); 
+            token1155.safeTransferFrom(address(this), msg.sender, _tokenId, auctionLots[_tokenId].count, ""); 
         } else {
             token20.transfer(auctionLots[_tokenId].curBidder, auctionLots[_tokenId].curPrice);
         }

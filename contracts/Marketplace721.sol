@@ -22,6 +22,8 @@ abstract contract Marketplace721 is BaseMarketplace {
 
         SellOrder memory order = SellOrder({seller: seller, price: _price, count: 1});
         sellingOrders[_tokenId] = order;
+
+        token721.safeTransferFrom(msg.sender, address(this), _tokenId);
     }
 
     function buyItem(uint256 _tokenId) public {  
@@ -29,7 +31,7 @@ abstract contract Marketplace721 is BaseMarketplace {
         require(seller != address(0), "Can't find selling item");
 
         token20.transferFrom(msg.sender, seller, sellingOrders[_tokenId].price);
-        token721.safeTransferFrom(seller, msg.sender, _tokenId);
+        token721.safeTransferFrom(address(this), msg.sender, _tokenId);
 
         delete sellingOrders[_tokenId];
     }
@@ -48,6 +50,7 @@ abstract contract Marketplace721 is BaseMarketplace {
             bidCount: 0});
 
         auctionLots[_tokenId] = lot;
+        token721.safeTransferFrom(msg.sender, address(this), _tokenId);
     }
 
 
@@ -58,7 +61,7 @@ abstract contract Marketplace721 is BaseMarketplace {
 
         if (auctionLots[_tokenId].bidCount >= successAuctionCount) {
             token20.transfer(seller, auctionLots[_tokenId].curPrice);
-            token721.safeTransferFrom(seller, msg.sender, _tokenId);
+            token721.safeTransferFrom(address(this), msg.sender, _tokenId);
         } else {
             token20.transfer(auctionLots[_tokenId].curBidder, auctionLots[_tokenId].curPrice);
         }
