@@ -20,7 +20,6 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
 
     function listItem(uint256 _tokenId, uint256 _price, uint256 _count) public { 
         address seller = msg.sender;
-        require(_count <= token1155.balanceOf(seller, _tokenId),"Don't have enough tokens to list");
         require(seller == owner, "Only owner can list");
 
         SellOrder memory order = SellOrder({seller: seller, price: _price, count: _count});
@@ -34,8 +33,7 @@ abstract contract Marketplace1155 is BaseMarketplace, ERC1155Holder {
         uint256 price  = sellingOrders[_tokenId].price;
 
         require(seller != address(0), "Can't find selling item");
-        require(_count  <= sellingOrders[_tokenId].count,  "Can't buy more than exising item count");
-
+     
         token20.transferFrom(msg.sender, seller, price * _count);
         token1155.safeTransferFrom(address(this), msg.sender, _tokenId, _count, ""); 
 
